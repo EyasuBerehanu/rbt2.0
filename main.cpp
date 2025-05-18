@@ -16,7 +16,8 @@ struct Node {
     int data;
     Node* left; //left child pointer
     Node* right; //right child pointer
-
+    Node* parent;
+  
     Node(int value) {
         data = value;
         left = nullptr;
@@ -57,6 +58,21 @@ void rotateRight(Node* current) {
 
 void rotateLeft(Node* current) {
     Node* newRoot = current->right;
+    current->right = newRoot->left;
+    if (newRoot->left != nullptr)
+        newRoot->left->parent = current;
+
+    newRoot->parent = current->parent;
+    if (current->parent == nullptr) {
+        root = newRoot;
+    } else if (current->parent->left == current) {
+        current->parent->left = newRoot;
+    } else {
+        current->parent->right = newRoot;
+    }
+
+    newRoot->left = current;
+    current->parent = newRoot;
 } 
 
 
