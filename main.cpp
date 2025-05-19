@@ -85,10 +85,15 @@ void fixInsert(Node*& root, Node* z){
                 y->color = BLACK;                 
                 z->parent->parent->color = RED;
                 z = z->parent->parent;             
-            } //else {
-    // case 2
-    //case 3
-            //}
+            }else {
+	      if (z == z->parent->right) {
+		z = z->parent;
+		//rotateLeft(root, z)
+	      } 
+	      z->parent->parent->color = BLACK; //come back to this
+	      z->parent->color = RED;
+	      //rotataeRight(root, z) 
+            }
             //now when its athe right child so mirror cases 
 
 }
