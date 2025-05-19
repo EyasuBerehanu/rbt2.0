@@ -11,23 +11,21 @@
 #include <cstdlib>
 
 using namespace std;
-
+enum Color {
+  BLACK, RED
+};
 struct Node {
     int data;
     Node* left; //left child pointer
     Node* right; //right child pointer
     Node* parent;
-  
+    Color color;
     Node(int value) {
         data = value;
         left = nullptr;
         right = nullptr;
         parent = nullptr;
     }
-};
-
-enum Color { 
-    BLACK, RED 
 };
 
 Node* insert(Node* root, int value);
@@ -37,7 +35,7 @@ Node* remove(Node* root, int value);
 Node* getSuccessor(Node* cur); 
 Node* search(Node* root, int value);
 
-void rotateRight(Node* current) {
+void rotateRight(Node*& root, Node* current) {
     Node* newRoot = current->left;
     current->left = newRoot->right;
     if (newRoot->right != nullptr)
@@ -56,7 +54,7 @@ void rotateRight(Node* current) {
     current->parent = newRoot;
 }
 
-void rotateLeft(Node* current) {
+void rotateLeft(Node*& root, Node* current) {
     Node* newRoot = current->right;
     current->right = newRoot->left;
     if (newRoot->left != nullptr)
@@ -77,8 +75,24 @@ void rotateLeft(Node* current) {
 
 
 
-void fixInsert(){
-    //case 1
+void fixInsert(Node*& root, Node* z){
+    while (z->parent && z->parent->color == RED) {
+        if (z->parent == z->parent->parent->left) {
+            Node* y = z->parent->parent->right;
+
+            if (y && y->color == RED) {
+                z->parent->color = BLACK;         
+                y->color = BLACK;                 
+                z->parent->parent->color = RED;
+                z = z->parent->parent;             
+            } //else {
+    // case 2
+    //case 3
+            //}
+            //now when its athe right child so mirror cases 
+
+}
+  }
     // case 2
     //case 3
 }
