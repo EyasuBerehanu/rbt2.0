@@ -1,3 +1,4 @@
+
 //Eyasu Berehanu
 //3/30/2025
 //This is a binary search tree which allows you to insert values, read values from a file, delte values, and search up values in the bianry search tree 
@@ -94,12 +95,26 @@ void fixInsert(Node*& root, Node* z){
 	      z->parent->color = RED;
 	      //rotataeRight(root, z) 
             }
-            //now when its athe right child so mirror cases 
-
-}
-  }
-    // case 2
-    //case 3
+	}else{
+	  Node* y = z->parent->parent->left;
+	  
+            if (y && y->color == RED) {
+                z->parent->color = BLACK;
+                y->color = BLACK;
+                z->parent->parent->color = RED;
+                z = z->parent->parent;
+	    }else{
+	      if (z == z->parent->left) {
+                    z = z->parent;
+                    //rotateRight(root, z);
+                }
+	        z->parent-parent->color = BLACK; //RETURN
+                z->parent->color = RED;
+                //rotateLeft(root, z);
+	    }
+	}
+	root->color = BLACK;
+    }
 }
 Node* insert(Node* root, int value) { //insterts value into tree using the logic for Binary search tree
     if (root == nullptr) {
