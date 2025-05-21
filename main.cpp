@@ -1,4 +1,3 @@
-
 //Eyasu Berehanu
 //3/30/2025
 //This is a binary search tree which allows you to insert values, read values from a file, delte values, and search up values in the bianry search tree 
@@ -21,6 +20,7 @@ struct Node {
     Node* right; //right child pointer
     Node* parent;
     Color color;
+  
     Node(int value) {
         data = value;
         left = nullptr;
@@ -35,6 +35,9 @@ void filess(Node*& root, int& size);
 Node* remove(Node* root, int value);
 Node* getSuccessor(Node* cur); 
 Node* search(Node* root, int value);
+void rotateRight(Node*& root, Node* current);
+void rotateLeft(Node*& root, Node* current);
+void fixInsert(Node*& root, Node* z);
 
 void rotateRight(Node*& root, Node* current) {
     Node* newRoot = current->left;
@@ -91,8 +94,8 @@ void fixInsert(Node*& root, Node* z){
 		z = z->parent;
 		//rotateLeft(root, z)
 	      } 
-	      z->parent->parent->color = BLACK; //come back to this
-	      z->parent->color = RED;
+	      z->parent->color = BLACK;
+	      z->parent->parent->color = RED;
 	      //rotataeRight(root, z) 
             }
 	}else{
@@ -108,26 +111,41 @@ void fixInsert(Node*& root, Node* z){
                     z = z->parent;
                     //rotateRight(root, z);
                 }
-	        z->parent-parent->color = BLACK; //RETURN
-                z->parent->color = RED;
+	        z->parent->color = BLACK; 
+                z->parent->parent->color = RED;
                 //rotateLeft(root, z);
 	    }
 	}
 	root->color = BLACK;
     }
 }
+
 Node* insert(Node* root, int value) { //insterts value into tree using the logic for Binary search tree
-    if (root == nullptr) {
+  Node* x = root;
+  Node* y = nullptr;
+  Node* newNode = new Node(value);
+
+  while (x != nullptr){
+    y = x;
+    if(newNode->data < x->data){
+      x = x->left;
+    }else{
+      x = x-> right;
+    }
+  }
+  
+  newNode->parent = y;
+  if (y == nullptr) {
         return new Node(value);
-    }
-
-    if (value < root->data) { //uses recurtion to find the right postion for the value wanted for insert
-        root->left = insert(root->left, value);
+  }else if (newNode->data < y->data) { //uses recurtion to find the right postion for the value wanted for insert
+        y->left = newNode;
     } else {
-        root->right = insert(root->right, value);
+        y->right = newNode;
     }
-
+  
+    fixInsert(root, newNode);
     return root;
+
 }
 
 Node* getSuccessor(Node* cur) { //finds the next large node or the successor of a node or number
