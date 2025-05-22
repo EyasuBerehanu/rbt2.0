@@ -1,9 +1,7 @@
 //Eyasu Berehanu
 //3/30/2025
-//This is a binary search tree which allows you to insert values, read values from a file, delte values, and search up values in the bianry search tree 
-//Sources:
-//Some help from my brother with getsuccessor, 
-//Geeksforgeeks on helping how to learn how to do insert, search and delte 
+//This is a binary search tree but now with red black tree insert and properties which allows you to insert values, read values from a file, delte values, and search up values in the bianry search tree 
+//Sources: I mainly used the red black tree explained in 5 minutes video to help me build this but also stuff i learned from the first attempt https://www.youtube.com/watch?v=A3JZinzkMpk&ab_channel=MichaelSambol
 //Mr Galbrith assistances on print from past heap project
 #include <iostream>
 #include <fstream>
@@ -11,17 +9,18 @@
 #include <cstdlib>
 
 using namespace std;
-enum Color {
+enum Color { //node colors for rbt
   BLACK, RED
 };
 struct Node {
     int data;
     Node* left; //left child pointer
     Node* right; //right child pointer
-    Node* parent;
-    Color color;
+  Node* parent; //parent pointer
+  Color color; //this is for red or black
   
     Node(int value) {
+        color = RED;
         data = value;
         left = nullptr;
         right = nullptr;
@@ -39,18 +38,18 @@ void rotateRight(Node*& root, Node* current);
 void rotateLeft(Node*& root, Node* current);
 void fixInsert(Node*& root, Node* z);
 
-void rotateRight(Node*& root, Node* current) {
+void rotateRight(Node*& root, Node* current) { //this does the right roation for a given node
     Node* newRoot = current->left;
     current->left = newRoot->right;
     if (newRoot->right != nullptr)
         newRoot->right->parent = current;
 
-    newRoot->parent = current->parent;
+    newRoot->parent = current->parent; //connects the newroot to currents parents
     if (current->parent == nullptr) {
         root = newRoot; 
-    } else if (current->parent->right == current) {
+    } else if (current->parent->right == current) { //if current is right child change parents right to new root
         current->parent->right = newRoot;
-    } else {
+    } else { //else if left now it changes parents left to new root
         current->parent->left = newRoot;
     }
 
@@ -58,7 +57,7 @@ void rotateRight(Node*& root, Node* current) {
     current->parent = newRoot;
 }
 
-void rotateLeft(Node*& root, Node* current) {
+void rotateLeft(Node*& root, Node* current) { //this does left roaion for a given node
     Node* newRoot = current->right;
     current->right = newRoot->left;
     if (newRoot->left != nullptr)
@@ -67,9 +66,9 @@ void rotateLeft(Node*& root, Node* current) {
     newRoot->parent = current->parent;
     if (current->parent == nullptr) {
         root = newRoot;
-    } else if (current->parent->left == current) {
+    } else if (current->parent->left == current) { //if current is left child change parents left to new root
         current->parent->left = newRoot;
-    } else {
+    } else { //else if right change parents right to new root
         current->parent->right = newRoot;
     }
 
@@ -81,50 +80,51 @@ void rotateLeft(Node*& root, Node* current) {
 
 void fixInsert(Node*& root, Node* z){
     while (z->parent && z->parent->color == RED) {
-        if (z->parent == z->parent->parent->left) {
+      if (z->parent == z->parent->parent->left) { //parent is left child
             Node* y = z->parent->parent->right;
-
-            if (y && y->color == RED) {
+	   
+            if (y && y->color == RED) { //for case 1 when uncle is red
                 z->parent->color = BLACK;         
                 y->color = BLACK;                 
                 z->parent->parent->color = RED;
                 z = z->parent->parent;             
             }else {
-	      if (z == z->parent->right) {
+	      if (z == z->parent->right) { //for case 2 when z is a right child
 		z = z->parent;
-		//rotateLeft(root, z)
+		rotateLeft(root, z);
 	      } 
-	      z->parent->color = BLACK;
+	      z->parent->color = BLACK; //case 3 for when z is a left child
 	      z->parent->parent->color = RED;
-	      //rotataeRight(root, z) 
+	      rotateRight(root, z->parent->parent); 
             }
-	}else{
+      }else{ //mirroring the previous code for when parent is right
 	  Node* y = z->parent->parent->left;
 	  
-            if (y && y->color == RED) {
+	  if (y && y->color == RED) { //case 1 unc is red
                 z->parent->color = BLACK;
                 y->color = BLACK;
                 z->parent->parent->color = RED;
                 z = z->parent->parent;
 	    }else{
-	      if (z == z->parent->left) {
+	    if (z == z->parent->left) { //case 2 when z is left
                     z = z->parent;
-                    //rotateRight(root, z);
+                    rotateRight(root, z);
                 }
-	        z->parent->color = BLACK; 
+	    z->parent->color = BLACK; //case 3 when z is right then we end by making sure the root is black
                 z->parent->parent->color = RED;
-                //rotateLeft(root, z);
+                rotateLeft(root, z->parent->parent);
 	    }
 	}
-	root->color = BLACK;
     }
+	root->color = BLACK;
+    
 }
 
 Node* insert(Node* root, int value) { //insterts value into tree using the logic for Binary search tree
   Node* x = root;
   Node* y = nullptr;
   Node* newNode = new Node(value);
-
+  //basically the binary search tree from before but had to change the way it worked so it would work with the fix insert
   while (x != nullptr){
     y = x;
     if(newNode->data < x->data){
@@ -136,14 +136,14 @@ Node* insert(Node* root, int value) { //insterts value into tree using the logic
   
   newNode->parent = y;
   if (y == nullptr) {
-        return new Node(value);
+    root = newNode;
   }else if (newNode->data < y->data) { //uses recurtion to find the right postion for the value wanted for insert
         y->left = newNode;
     } else {
         y->right = newNode;
     }
   
-    fixInsert(root, newNode);
+  fixInsert(root, newNode); //here is where the tree fixes insert per rbt rules
     return root;
 
 }
@@ -215,7 +215,13 @@ void printTree(Node* root, int depth = 0) { //prints tree similar to heap
     for (int i = 0; i < depth; i++) {
         cout << "   ";
     }
-    cout << root->data << endl;
+    cout << root->data;
+    if (root->color == RED) { //add the symoble of if the value is red or black for visualzation
+        cout << " [R]";
+    } else {
+        cout << " [B]";
+    }
+    cout<< endl;
     printTree(root->left, depth + 1);  //uses recurtion to print left sideof a tree
 }
 
