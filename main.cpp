@@ -37,6 +37,7 @@ Node* search(Node* root, int value);
 void rotateRight(Node*& root, Node* current);
 void rotateLeft(Node*& root, Node* current);
 void fixInsert(Node*& root, Node* z);
+Node* transplant(Node* root, Node* u, Node* v);
 
 void rotateRight(Node*& root, Node* current) { //this does the right roation for a given node
     Node* newRoot = current->left;
@@ -158,7 +159,25 @@ Node* getSuccessor(Node* cur) { //finds the next large node or the successor of 
     }
     return cur;
 }
-
+Node* transplant(Node* root, Node* u, Node* v) {
+    if(u->parent == nullptr){
+      root = v;
+    }else if(u == u->parent->left){
+      u->parent->left = v;
+    }else{
+      u->parent->right = v;
+    }
+    if(v!=nullptr){
+      v->parent = u->parent;
+    }
+    return root;
+}
+Node* fixRemove(Node* root, int value){
+  //sib is red
+  //both sib are black
+  //sib right is black sib left is red
+  //sib right is red
+}
 Node* remove(Node* root, int value) { //removes node that was ask to be removed in the bianry search tree
     if (root == nullptr) {
         return nullptr;
