@@ -38,6 +38,7 @@ void rotateRight(Node*& root, Node* current);
 void rotateLeft(Node*& root, Node* current);
 void fixInsert(Node*& root, Node* z);
 Node* transplant(Node* root, Node* u, Node* v);
+void fixRemove(Node*& root, Node*& x, Node* xParent);
 
 void rotateRight(Node*& root, Node* current) { //this does the right roation for a given node
     Node* newRoot = current->left;
@@ -172,17 +173,44 @@ Node* transplant(Node* root, Node* u, Node* v) {
     }
     return root;
 }
-Node* fixRemove(Node* root, int value){
-  //sib is red
+void fixRemove(Node*& root, Node*& x, Node* xParent){
+  while (x != root && (x == nullptr || x->color == BLACK)){
+    if(x == xParent->left){
+      Node* w = xParent->right;
+
+      if (w != nullptr && w->color == RED){
+	w->color = BLACK;
+	xParent->color = RED;
+	rotateLeft(root, xParent);
+	w = xParent->right;
+      }
+      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) {
+	if(w != nullptr){
+	  w->color = RED;
+	}
+    }
+  }
   //both sib are black
   //sib right is black sib left is red
   //sib right is red
 }
+}
 Node* remove(Node* root, int value) { //removes node that was ask to be removed in the bianry search tree
+  Node* z = root;
+
+  while (z != nullptr && z->data != value){
+    if(value < z->data){
+      z = z->left;
+    }else{
+      z = z->right;
+    }
+  }
     if (root == nullptr) {
-        return nullptr;
+        return root;
     }
 
+    Node* y = z;
+    Node* x = nullptr;
     if (value < root->data) { 
         root->left = remove(root->left, value); //uses recurtion to remove the node from left if smaller value
     } else if (value > root->data) { 
