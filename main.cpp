@@ -211,6 +211,40 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 	break;
       }
     }else{ //mirror case after thissssssss
+      Node* w = xParent->left;
+
+      if (w != nullptr && w->color == RED){
+	w->color = BLACK;
+	xParent->color = RED;
+	rotateRight(root, xParent);
+	w = xParent->left;
+      }
+      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) {
+	if(w != nullptr){
+	  w->color = RED;
+	}
+      }else {
+	if(w->left == nullptr || w->left->color == BLACK) {
+           if (w->right != nullptr) {
+	     w->right->color = BLACK;
+	   }
+	   
+	   w->color = RED;
+	   rotateLeft(root, w);
+	   w = xParent->left;
+	}
+	if (w != nullptr){
+	  w->color = xParent->color;
+	}
+	xParent->color = BLACK;
+
+	if (w != nullptr && w->left != nullptr){
+	  w->left->color = BLACK;
+	}
+	rotateRight(root, xParent);
+	x = root;
+	break;
+      }
 
     }
 }
@@ -234,11 +268,11 @@ Node* remove(Node* root, int value) { //removes node that was ask to be removed 
 
     Node* y = z;
     Node* x = nullptr;
-    if (value < root->data) { 
+    if (value < root->data) { //no left child 
         root->left = remove(root->left, value); //uses recurtion to remove the node from left if smaller value
-    } else if (value > root->data) { 
+    } else if (value > root->data) { //no right child
         root->right = remove(root->right, value); //uses recurtion to remove the node from right if larger value
-    } else {
+    } else { /has 2 childs
         if (root->left == nullptr && root->right == nullptr) {
             delete root;
             return nullptr;
