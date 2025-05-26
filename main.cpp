@@ -160,36 +160,38 @@ Node* getSuccessor(Node* cur) { //finds the next large node or the successor of 
     }
     return cur;
 }
-Node* transplant(Node* root, Node* u, Node* v) {
-    if(u->parent == nullptr){
+Node* transplant(Node* root, Node* u, Node* v) { //this switchs the subtree root at u with the one rooted at v to help move subtrees for rbt
+  if(u->parent == nullptr){ //u is the root
       root = v;
-    }else if(u == u->parent->left){
+  }else if(u == u->parent->left){ //u is the left child
       u->parent->left = v;
-    }else{
+  }else{ //u is the right child
       u->parent->right = v;
     }
-    if(v!=nullptr){
+  if(v!=nullptr){ //connects v parents 
       v->parent = u->parent;
     }
     return root;
 }
 void fixRemove(Node*& root, Node*& x, Node* xParent){
   while (x != root && (x == nullptr || x->color == BLACK)){
-    if(x == xParent->left){
+    if(x == xParent->left){ //if x is the left child
       Node* w = xParent->right;
 
-      if (w != nullptr && w->color == RED){
+      if (w != nullptr && w->color == RED){ //case 1 for when siblling is red which will roate it left the change color to get black
 	w->color = BLACK;
 	xParent->color = RED;
 	rotateLeft(root, xParent);
 	w = xParent->right;
       }
-      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) {
+      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) { //case 2 for when all are black so we color sibling red
 	if(w != nullptr){
 	  w->color = RED;
 	}
+	x = xParent;
+	xParent = xParent->parent;
       }else {
-	if(w->right == nullptr || w->right->color == BLACK) {
+	if(w->right == nullptr || w->right->color == BLACK) { //case 3 for when right child is red and left is black which then we rotate left
            if (w->left != nullptr) {
 	     w->left->color = BLACK;
 	   }
@@ -198,33 +200,37 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 	   rotateRight(root, w);
 	   w = xParent->right;
 	}
-	if (w != nullptr){
-	  w->color = xParent->color;
+	if (w != nullptr){ //case for when left child is red 
+	  w->color = xParent->color; //colors w to match xparent color
 	}
-	xParent->color = BLACK;
+	xParent->color = BLACK; //colors xparent to black
 
 	if (w != nullptr && w->left != nullptr){
-	  w->right->color = BLACK;
+	  w->right->color = BLACK; //changes to black
 	}
-	rotateLeft(root, xParent);
+	rotateLeft(root, xParent); //rotate xparent to the right to fix the double black
 	x = root;
 	break;
       }
-    }else{ //mirror case after thissssssss
+    }else{ //mirror case so everything thing we did for when x was a right child but now left
       Node* w = xParent->left;
 
-      if (w != nullptr && w->color == RED){
+      if (w != nullptr && w->color == RED){//case 1 for when siblling is red which will roat\
+e it left the change color to get black
 	w->color = BLACK;
 	xParent->color = RED;
 	rotateRight(root, xParent);
 	w = xParent->left;
       }
-      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) {
+      if ((w == nullptr) || ((w->left == nullptr ||  w->left->color  == BLACK) &&(w->right == nullptr || w->right->color == BLACK))) { //case 2 for when all are black so we color sibling\red
 	if(w != nullptr){
 	  w->color = RED;
 	}
+	x = xParent;
+	xParent = xParent->parent;
       }else {
-	if(w->left == nullptr || w->left->color == BLACK) {
+	if(w->left == nullptr || w->left->color == BLACK) {//case 3 for when right child i\
+s red and left is black which then we rotate left
            if (w->right != nullptr) {
 	     w->right->color = BLACK;
 	   }
@@ -233,7 +239,7 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 	   rotateLeft(root, w);
 	   w = xParent->left;
 	}
-	if (w != nullptr){
+	if (w != nullptr){//case 4 for when left child is red
 	  w->color = xParent->color;
 	}
 	xParent->color = BLACK;
@@ -248,15 +254,22 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 
     }
 }
+
+  if(x != nullptr){ //to make sure the node is black
+    x->color = BLACK;
+  }
 }
 
 
 
 Node* remove(Node* root, int value) { //removes node that was ask to be removed in the bianry search tree
-  Node* z = root;
-  Node* y = z;
-  Node* x = nullptr;
-  while (z != nullptr && z->data != value){
+  Node* z = root; //da root
+  Node* y = z; //node that will end up being moved
+  Node* x = nullptr; //replaces y
+  bool firstColor = y->color;//keeps y starting color
+  Node* xParent = nullptr; //for fixremove
+  
+  while (z != nullptr && z->data != value){ //gets the node to delete
     if(value < z->data){
       z = z->left;
     }else{
@@ -267,38 +280,48 @@ Node* remove(Node* root, int value) { //removes node that was ask to be removed 
         return root;
     }
 
-    if (z->right == nullptr) { //no left child 
+    if (z->right == nullptr) { //no right child 
       x = z->left;
       xParent = z->parent;
       root = transplant(root, z, z->left); //uses recurtion to remove the node from left if smaller value
-    } else if (z->left == nullptr) { //no right child
+    } else if (z->left == nullptr) { //no left child
       x = z->right;
       xParent = z->parent;
       root = transplant(root, z, z->right); //uses recurtion to remove the node from right if larger value
 	
-    } else { //has 2 childs
-        if (root->left == nullptr && root->right == nullptr) {
-            delete root;
-            return nullptr;
-        }
-        else if (root->left == nullptr) { //replaces root with right child if need to 
-            Node* temp = root->right;
-            delete root;
-            return temp;
-        }
-        else if (root->right == nullptr) { //replaces root with left child if need to 
-            Node* temp = root->left;
-            delete root;
-            return temp;
-        }
-        else {
-            Node* successor = getSuccessor(root); //replaces with the succersor if both exist inorder succersor
-        if (successor != nullptr) {  
-                root->data = successor->data;
-                root->right = remove(root->right, successor->data);
-            }
-        }
+    } else { //node has 2 childs
+      y = getSuccessor(z); //this is the smallest node in right subtree the succsessor
+      firstColor = y->color;
+      x = y->right;
+
+      if (y->parent != z) { //moves right child up tree
+	root = transplant(root, y, y->right);
+	y->right = z->right;
+	
+	if(y->right != nullptr){
+	  y->right->parent = y;
+	}
+	
+        xParent = y->parent;
+      }else{
+	xParent = y;
+      }
+      
+      root = transplant(root, z, y); //replaces root with y
+      y->left = z->left;
+      if (y->left != nullptr){
+	y->left->parent = y;
+      }
+      
+      y->color = z->color; //keps orginal coloer
+
     }
+    delete z;
+
+    if(firstColor == BLACK){ //fix if black node was delete uses fixRemove
+      fixRemove(root, x, xParent);
+    }
+
     return root;
 }
 
