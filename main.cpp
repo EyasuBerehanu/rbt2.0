@@ -188,13 +188,36 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 	if(w != nullptr){
 	  w->color = RED;
 	}
+      }else {
+	if(w->right == nullptr || w->right->color == BLACK) {
+           if (w->left != nullptr) {
+	     w->left->color = BLACK;
+	   }
+	   
+	   w->color = RED;
+	   rotateRight(root, w);
+	   w = xParent->right;
+	}
+	if (w != nullptr){
+	  w->color = xParent->color;
+	}
+	xParent->color = BLACK;
+
+	if (w != nullptr && w->left != nullptr){
+	  w->right->color = BLACK;
+	}
+	rotateLeft(root, xParent);
+	x = root;
+	break;
+      }
+    }else{ //mirror case after thissssssss
+
     }
-  }
-  //both sib are black
-  //sib right is black sib left is red
-  //sib right is red
 }
 }
+
+
+
 Node* remove(Node* root, int value) { //removes node that was ask to be removed in the bianry search tree
   Node* z = root;
 
