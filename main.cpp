@@ -254,7 +254,8 @@ void fixRemove(Node*& root, Node*& x, Node* xParent){
 
 Node* remove(Node* root, int value) { //removes node that was ask to be removed in the bianry search tree
   Node* z = root;
-
+  Node* y = z;
+  Node* x = nullptr;
   while (z != nullptr && z->data != value){
     if(value < z->data){
       z = z->left;
@@ -266,13 +267,16 @@ Node* remove(Node* root, int value) { //removes node that was ask to be removed 
         return root;
     }
 
-    Node* y = z;
-    Node* x = nullptr;
-    if (value < root->data) { //no left child 
-        root->left = remove(root->left, value); //uses recurtion to remove the node from left if smaller value
-    } else if (value > root->data) { //no right child
-        root->right = remove(root->right, value); //uses recurtion to remove the node from right if larger value
-    } else { /has 2 childs
+    if (z->right == nullptr) { //no left child 
+      x = z->left;
+      xParent = z->parent;
+      root = transplant(root, z, z->left); //uses recurtion to remove the node from left if smaller value
+    } else if (z->left == nullptr) { //no right child
+      x = z->right;
+      xParent = z->parent;
+      root = transplant(root, z, z->right); //uses recurtion to remove the node from right if larger value
+	
+    } else { //has 2 childs
         if (root->left == nullptr && root->right == nullptr) {
             delete root;
             return nullptr;
